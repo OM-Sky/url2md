@@ -2,7 +2,7 @@
 
 **URL to clean Markdown API** — convert any web page to readable Markdown via a single HTTP request.
 
-🌐 **Live:** https://url2md.up.railway.app  
+🌐 **Live:** https://url2md-production-47d0.up.railway.app  
 📦 **Repo:** https://github.com/OM-Sky/url2md
 
 ---
@@ -11,10 +11,10 @@
 
 ```bash
 # Free tier (10 requests/day)
-curl "https://url2md.up.railway.app/scrape?url=https://example.com"
+curl "https://url2md-production-47d0.up.railway.app/scrape?url=https://example.com"
 
 # Pro tier (unlimited)
-curl "https://url2md.up.railway.app/scrape?url=https://example.com&key=YOUR_API_KEY"
+curl "https://url2md-production-47d0.up.railway.app/scrape?url=https://example.com&key=YOUR_API_KEY"
 ```
 
 ## Response
@@ -55,7 +55,7 @@ X-RateLimit-Reset: 1704067200
 | Free | $0/month | 10/day |
 | Pro | $4/month | Unlimited |
 
-Get Pro access: checkout link on the [landing page](https://url2md.up.railway.app).
+Get Pro access: checkout link on the [landing page](https://url2md-production-47d0.up.railway.app).
 
 ## Stack
 
