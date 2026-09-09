@@ -13,7 +13,6 @@
     "cheerio": "^1",
     "fastify": "^4",
     "nanoid": "^5",
-    "node-fetch": "^3",
     "resend": "^3",
     "turndown": "^7"
   },
