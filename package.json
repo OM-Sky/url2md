@@ -1,7 +1,9 @@
 {
   "name": "url2md",
   "version": "1.0.0",
-  "description": "URL to clean Markdown API",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
