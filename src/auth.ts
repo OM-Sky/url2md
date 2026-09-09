@@ -1,5 +1,5 @@
 import { createClient, type Client } from '@libsql/client';
-import { nanoid } from 'nanoid';
+import { randomBytes } from 'crypto';
 import path from 'path';
 
 const DB_URL = `file:${process.env.DB_PATH || path.join(process.cwd(), 'keys.db')}`;
@@ -27,7 +27,7 @@ export async function initDb(): Promise<void> {
 }
 
 export async function generateKey(email: string): Promise<string> {
-  const key = `url2md_${nanoid(32)}`;
+  const key = `url2md_${randomBytes(24).toString('hex')}`;
   const db = getClient();
   await db.execute({
     sql: 'INSERT INTO keys (key, email, active) VALUES (?, ?, 1)',

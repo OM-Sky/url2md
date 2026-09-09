@@ -14,7 +14,6 @@
     "@libsql/client": "^0.14",
     "cheerio": "^1",
     "fastify": "^4",
-    "nanoid": "^5",
     "resend": "^3",
     "turndown": "^7"
   },
