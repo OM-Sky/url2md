@@ -1,0 +1,26 @@
+{
+  "name": "url2md",
+  "version": "1.0.0",
+  "description": "URL to clean Markdown API",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node src/server.ts"
+  },
+  "dependencies": {
+    "@fastify/static": "^7",
+    "@libsql/client": "^0.14",
+    "cheerio": "^1",
+    "fastify": "^4",
+    "nanoid": "^5",
+    "node-fetch": "^3",
+    "resend": "^3",
+    "turndown": "^7"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/turndown": "^5",
+    "ts-node": "^10",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>url2md — URL to Clean Markdown API</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #21262d;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --red: #f85149;
+      --yellow: #e3b341;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; }
+
+    /* NAV */
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+    nav .logo { font-size: 1.2rem; font-weight: 700; color: var(--accent); text-decoration: none; }
+    nav ul { list-style: none; display: flex; gap: 1.5rem; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+    nav a:hover { color: var(--text); }
+
+    /* SECTIONS */
+    .container { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+    section { padding: 5rem 0; }
+
+    /* HERO */
+    #hero { text-align: center; padding: 6rem 0 5rem; }
+    #hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; background: linear-gradient(135deg, #58a6ff, #3fb950); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1.25rem; }
+    #hero p { font-size: 1.2rem; color: var(--muted); max-width: 600px; margin: 0 auto 2rem; }
+    .badge-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .badge { background: var(--bg3); border: 1px solid var(--border); border-radius: 2rem; padding: 0.35rem 0.9rem; font-size: 0.8rem; color: var(--muted); }
+    .btn { display: inline-block; padding: 0.75rem 1.75rem; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; transition: opacity 0.2s; font-size: 0.95rem; }
+    .btn-primary { background: var(--accent); color: #0d1117; border: none; }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+    .btn-outline:hover { background: var(--accent); color: #0d1117; }
+
+    /* DEMO */
+    #demo { background: var(--bg2); border-radius: 12px; padding: 2.5rem; border: 1px solid var(--border); margin: 0 auto; max-width: 800px; }
+    #demo h2 { margin-bottom: 1.25rem; font-size: 1.4rem; }
+    .input-row { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .input-row input { flex: 1; padding: 0.65rem 1rem; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.95rem; outline: none; }
+    .input-row input:focus { border-color: var(--accent); }
+    #result-block { position: relative; }
+    #result-block pre { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; font-size: 0.82rem; overflow-x: auto; max-height: 320px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; color: var(--text); min-height: 80px; }
+    #result-title { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+    #copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: var(--bg2); border: 1px solid var(--border); color: var(--muted); padding: 0.25rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+    #copy-btn:hover { color: var(--text); }
+    .status-bar { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; min-height: 1.2em; }
+
+    /* PRICING */
+    #pricing { text-align: center; }
+    #pricing h2 { font-size: 2rem; margin-bottom: 0.5rem; }
+    #pricing .sub { color: var(--muted); margin-bottom: 3rem; }
+    .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 700px; margin: 0 auto; }
+    @media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
+    .plan { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: left; }
+    .plan.featured { border-color: var(--accent); }
+    .plan h3 { font-size: 1.2rem; margin-bottom: 0.25rem; }
+    .plan .price { font-size: 2.5rem; font-weight: 800; margin: 0.75rem 0 0.25rem; }
+    .plan .price span { font-size: 1rem; font-weight: 400; color: var(--muted); }
+    .plan ul { list-style: none; margin: 1.25rem 0 1.5rem; }
+    .plan ul li { padding: 0.35rem 0; color: var(--muted); font-size: 0.9rem; }
+    .plan ul li::before { content: "✓ "; color: var(--accent2); }
+    .plan ul li.no::before { content: "✗ "; color: var(--red); }
+
+    /* DOCS */
+    #docs h2 { font-size: 2rem; margin-bottom: 2rem; }
+    .doc-block { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .doc-block h3 { font-size: 1rem; color: var(--accent); margin-bottom: 0.75rem; }
+    .doc-block pre { background: var(--bg3); border-radius: 6px; padding: 1rem; font-size: 0.82rem; overflow-x: auto; color: var(--text); }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">url2md</a>
+  <ul>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#docs">API Docs</a></li>
+    <li><a href="https://github.com/OM-Sky/url2md" target="_blank">GitHub</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <h1>URL → Clean Markdown</h1>
+    <p>Convert any web page to clean, readable Markdown via a single API call. No browser required.</p>
+    <div class="badge-row">
+      <span class="badge">⚡ Fast</span>
+      <span class="badge">🧹 Clean output</span>
+      <span class="badge">🔑 API key auth</span>
+      <span class="badge">🆓 Free tier</span>
+    </div>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="#demo" class="btn btn-primary">Try it live</a>
+      <a href="#pricing" class="btn btn-outline">Get Pro Access</a>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section style="padding:2rem 0 5rem;">
+  <div class="container">
+    <div id="demo">
+      <h2>🔬 Live Demo</h2>
+      <div class="input-row">
+        <input type="url" id="url-input" placeholder="https://example.com" value="https://example.com" />
+        <button class="btn btn-primary" id="fetch-btn">Fetch →</button>
+      </div>
+      <div id="result-block" style="display:none;">
+        <p id="result-title"></p>
+        <div style="position:relative;">
+          <pre id="result-pre"></pre>
+          <button id="copy-btn" onclick="copyResult()">Copy</button>
+        </div>
+      </div>
+      <p class="status-bar" id="status-bar">Free tier: 10 requests/day per IP</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <h2>Simple Pricing</h2>
+    <p class="sub">Start free. Upgrade when you need more.</p>
+    <div class="pricing-grid">
+      <div class="plan">
+        <h3>Free</h3>
+        <div class="price">$0 <span>/ month</span></div>
+        <ul>
+          <li>10 requests per day</li>
+          <li>Full Markdown output</li>
+          <li>Title extraction</li>
+          <li class="no">No API key needed</li>
+          <li class="no">Rate limited by IP</li>
+        </ul>
+        <a href="#demo" class="btn btn-outline" style="width:100%;text-align:center;">Start for free</a>
+      </div>
+      <div class="plan featured">
+        <h3>Pro ⭐</h3>
+        <div class="price">$4 <span>/ month</span></div>
+        <ul>
+          <li>Unlimited requests</li>
+          <li>Full Markdown output</li>
+          <li>Title extraction</li>
+          <li>Personal API key</li>
+          <li>Email support</li>
+        </ul>
+        <a href="CHECKOUT_URL" id="checkout-btn" class="btn btn-primary" style="width:100%;text-align:center;">Get Pro Access →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOCS -->
+<section id="docs">
+  <div class="container">
+    <h2>📖 API Documentation</h2>
+
+    <div class="doc-block">
+      <h3>GET /scrape — Free Tier (rate limited)</h3>
+      <pre>curl "https://url2md.up.railway.app/scrape?url=https://example.com"</pre>
+    </div>
+
+    <div class="doc-block">
+      <h3>GET /scrape — Pro Tier (unlimited)</h3>
+      <pre>curl "https://url2md.up.railway.app/scrape?url=https://example.com&key=YOUR_API_KEY"</pre>
+    </div>
+
+    <div class="doc-block">
+      <h3>Response</h3>
+      <pre>{
+  "markdown": "# Example Domain\n\nThis domain is for use in illustrative examples...",
+  "title": "Example Domain",
+  "url": "https://example.com"
+}</pre>
+    </div>
+
+    <div class="doc-block">
+      <h3>Rate Limit Headers (free tier)</h3>
+      <pre>X-RateLimit-Limit: 10
+X-RateLimit-Remaining: 9
+X-RateLimit-Reset: 1704067200</pre>
+    </div>
+
+    <div class="doc-block">
+      <h3>Error Responses</h3>
+      <pre>400 { "error": "Invalid URL" }
+401 { "error": "Invalid or inactive API key" }
+429 { "error": "Rate limit exceeded..." }
+502 { "error": "Failed to scrape: ..." }</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Built with ❤️ · <a href="https://github.com/OM-Sky/url2md" style="color:var(--accent);">GitHub</a> · url2md © 2026</p>
+</footer>
+
+<script>
+  document.getElementById('fetch-btn').addEventListener('click', async () => {
+    const url = document.getElementById('url-input').value.trim();
+    const status = document.getElementById('status-bar');
+    const block = document.getElementById('result-block');
+    const pre = document.getElementById('result-pre');
+    const titleEl = document.getElementById('result-title');
+    const btn = document.getElementById('fetch-btn');
+
+    if (!url) { status.textContent = '⚠ Please enter a URL'; return; }
+
+    btn.textContent = 'Fetching…';
+    btn.disabled = true;
+    status.textContent = 'Fetching…';
+    block.style.display = 'none';
+
+    try {
+      const res = await fetch(`/scrape?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        status.textContent = `❌ ${data.error || res.statusText}`;
+        return;
+      }
+
+      titleEl.textContent = `📄 ${data.title}`;
+      pre.textContent = data.markdown;
+      block.style.display = 'block';
+      status.textContent = `✅ Done — ${data.markdown.length} chars`;
+    } catch (e) {
+      status.textContent = `❌ Network error: ${e.message}`;
+    } finally {
+      btn.textContent = 'Fetch →';
+      btn.disabled = false;
+    }
+  });
+
+  function copyResult() {
+    const text = document.getElementById('result-pre').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  }
+</script>
+</body>
+</html>
