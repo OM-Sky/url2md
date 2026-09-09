@@ -2,7 +2,14 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { generateKey } from './auth.js';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder');
+  }
+  return _resend;
+}
+
 
 interface LemonPayload {
   meta?: {
@@ -47,7 +54,7 @@ export async function handleLemonWebhook(
   console.log(`[webhook] Generated key for ${email}: ${apiKey}`);
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'url2md <onboarding@resend.dev>',
       to: email,
       subject: 'Your url2md Pro API Key',
